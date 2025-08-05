@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 05, 2025 at 12:16 PM
+-- Generation Time: Aug 05, 2025 at 05:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,8 +41,9 @@ CREATE TABLE `projects` (
 --
 
 INSERT INTO `projects` (`id`, `title`, `description`, `finish_date`, `progress`, `owner_id`) VALUES
-(1, 'Interactive application - company 1', 'Create interactive application for fetching data of company 1', NULL, 99, 1),
-(2, 'Api developement for company 2', 'Build api to retriev data of company 2', NULL, 0, 2);
+(1, 'Interactive application - company 1', 'Create interactive application for fetching data of company 1', NULL, 100, 1),
+(2, 'Api developement for company 3', 'Build api to retriev data of company 3', NULL, 15, 2),
+(3, 'Build Leage page', 'Display every user with order of their experience field', NULL, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -64,13 +65,29 @@ CREATE TABLE `tasks` (
 --
 
 INSERT INTO `tasks` (`id`, `title`, `description`, `finish_date`, `progress`, `parent_project_id`) VALUES
-(1, 'Initialization of program', 'Initialize application and install all necessary libraries', NULL, 99, 1),
-(2, 'Implement create/register using keyCloak', 'register company to keyCloak and implement on frontend redirections and implement saving access token on useContext.', NULL, 100, 1),
-(3, 'implement Home page', 'requirements:\r\nhome page must include dashboard ...', NULL, 100, 1);
+(1, 'Initialization of program', 'Initialize application and install all necessary libraries', '2025-08-05', 100, 1),
+(2, 'Implement create/register using keyCloak', 'register company to keyCloak and implement on frontend redirections and implement saving access token on useContext.', '2025-08-05', 100, 1),
+(3, 'implement Home page', 'requirement:\r\nHome page must include a admin dashboard that super user will be able to delete, update and insert new ...', '2025-08-05', 100, 1),
+(4, 'Fix Branch conflicts', 'Check all lines of code and keep or replace ...', NULL, 28, 2);
 
 --
 -- Triggers `tasks`
 --
+DELIMITER $$
+CREATE TRIGGER `prevent_edit_completed_task` BEFORE UPDATE ON `tasks` FOR EACH ROW BEGIN
+    -- Prevent editing if already completed
+    IF OLD.progress = 100 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Cannot edit a completed task';
+    END IF;
+
+    -- If progress is being set to 100 now, set finish_date
+    IF NEW.progress = 100 AND OLD.progress <> 100 THEN
+        SET NEW.finish_date = CURDATE();
+    END IF;
+END
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `update_project_progress` AFTER UPDATE ON `tasks` FOR EACH ROW BEGIN
     DECLARE total_progress DECIMAL(5,2);
@@ -157,13 +174,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`

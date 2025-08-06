@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: pmboard-backend-Mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: pmboard
+      MYSQL_USER: pmboard
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3307:3307"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    container_name: pmboard-backend-Django
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=pmboard
+      - DB_USER=pmboard
+      - DB_PASSWORD=1234
+
+volumes:
+  mysql_data:
